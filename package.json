@@ -1,0 +1,27 @@
+{
+  "name": "test-jd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "discordbot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "chrome-launcher": "^0.15.1",
+    "config.json": "^0.0.4",
+    "discord.js": "^14.0.3",
+    "discord.js-core": "^1.0.7",
+    "discord.js11": "npm:discord.js@^11.6.4",
+    "discord.js12": "npm:discord.js@^12.4.1",
+    "discord.js13": "npm:discord.js@^13.0.0",
+    "embed": "^0.0.1",
+    "lol-discord": "^0.2.2",
+    "puppeteer": "^14.4.1",
+    "twitter-api-v2": "^1.12.3",
+    "vi": "^1.0.0"
+  }
+}

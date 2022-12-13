@@ -1,0 +1,46 @@
+{
+    "nom": {
+        "yenistax": {
+            "nom": "yenistax",
+            "nomcompte": "yenistax",
+            "dernierMatch": "EUW1_6185722657",
+            "dernierMatchTFT": "EUW1_6086299939",
+            "rankLoL": "",
+            "tierLoL": "",
+            "LPLoL": "",
+            "rankTFT": "",
+            "tierTFT": "",
+            "LPTFT": "",
+            "PosClassement": 0,
+            "PosClassementTFT": 0,
+            "EmoteLoL": "",
+            "EmoteTFT": "",
+            "IdDiscord": "408523795016712202",
+            "NombresVictoires": 0,
+            "NombresDefaites": 0,
+            "NombresGames": 0,
+            "RatioLol": 0
+        },
+        "byyolker": {
+            "nom": "ByYolKer",
+            "nomcompte": "ByYolKer",
+            "dernierMatch": "EUW1_6187566575",
+            "dernierMatchTFT": "EUW1_6180262529",
+            "rankLoL": "",
+            "tierLoL": "",
+            "LPLoL": "",
+            "rankTFT": "",
+            "tierTFT": "",
+            "LPTFT": "",
+            "PosClassement": 0,
+            "PosClassementTFT": 0,
+            "EmoteLoL": "",
+            "EmoteTFT": "",
+            "IdDiscord": "274236782189608974",
+            "NombresVictoires": 0,
+            "NombresDefaites": 0,
+            "NombresGames": 0,
+            "RatioLol": 0
+        }
+    }
+}
