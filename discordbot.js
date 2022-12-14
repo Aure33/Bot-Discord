@@ -5,7 +5,16 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildBans,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,]
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildMessageTyping,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildPresences,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.GuildWebhooks,
+    GatewayIntentBits.GuildIntegrations,
+  ]
 });
 const axios = require('axios');
 
@@ -17,7 +26,7 @@ const fs = require('fs');
 var Lancement = false;
 var LancementTFT = false;
 var membres = require('./profile.json');
-
+const challenger = "<:challenger:1022113918107258891>";
 
 var KeyRequise = require('../key');
 const riotApiKey = (KeyRequise.riotApiKey);
@@ -668,6 +677,7 @@ client.on("messageCreate", async message => {
 let messageLoose = async () => {
   console.log("refresh");
   try {
+    HallOfFames.deleteLesMecsQuiExistentPlus();
     var SalonResultat = 'testjason';
     for (var i = 0; i < Object.keys(membres.nom).length; i++) {
       var nomcompte = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
@@ -676,7 +686,6 @@ let messageLoose = async () => {
       var matchID = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/' + Profiles.data.puuid + '/ids?start=0&count=20&api_key=' + riotApiKey);
       var games = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/' + matchID.data[0] + '?api_key=' + riotApiKey);
       var Ranked = await axios.get('https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + Profiles.data.id + '?api_key=' + riotApiKey);
-
       //console.log("OK");
       var ProfileTFT = await axios.get('https://euw1.api.riotgames.com/tft/summoner/v1/summoners/by-name/' + nomcompte + '?api_key=' + riotApiKeyTFT);
       var matchIDTFT = await axios.get('https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/' + ProfileTFT.data.puuid + '/ids?start=0&count=20&api_key=' + riotApiKeyTFT);
@@ -843,6 +852,7 @@ client.on("messageCreate", async message => {
       var matchIDTFT = await axios.get('https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/' + ProfileTFT.data.puuid + '/ids?start=0&count=20&api_key=' + riotApiKeyTFT);
       if (membres.nom[nom] === undefined) {
         membres.nom[nomTMP] = {
+          nomDiscord: message.author.username,
           nom: nomTMP,
           nomcompte: nom,
           dernierMatch: matchID.data[0],
@@ -1000,52 +1010,52 @@ client.on("messageCreate", async message => {
 
 
 
-/*client.on("messageCreate", async message => {
+client.on("messageCreate", async message => {
   try {
-    if (message.content.startsWith("!reset") && message.author.id === "274236782189608974") {
+    if (message.content.startsWith("!reset")) {
+      if (message.author.id === "274236782189608974") {
+        HallOfFames.deleteLesMecsQuiExistentPlus();
+        for (var i = 0; i < Object.keys(membres.nom).length; i++) {
+          membres.nom[Object.keys(membres.nom)[i]] = {
+            nomDiscord: membres.nom[Object.keys(membres.nom)[i]].nomDiscord,
+            nom: membres.nom[Object.keys(membres.nom)[i]].nom,
+            nomcompte: membres.nom[Object.keys(membres.nom)[i]].nomcompte,
+            dernierMatch: membres.nom[Object.keys(membres.nom)[i]].dernierMatch,
+            dernierMatchTFT: membres.nom[Object.keys(membres.nom)[i]].dernierMatchTFT,
+            rankLoL: membres.nom[Object.keys(membres.nom)[i]].rankLoL,
+            tierLoL: membres.nom[Object.keys(membres.nom)[i]].tierLoL,
+            LPLoL: membres.nom[Object.keys(membres.nom)[i]].LPLoL,
+            rankTFT: membres.nom[Object.keys(membres.nom)[i]].rankTFT,
+            tierTFT: membres.nom[Object.keys(membres.nom)[i]].tierTFT,
+            LPTFT: membres.nom[Object.keys(membres.nom)[i]].LPTFT,
+            rankLoLChiffre: membres.nom[Object.keys(membres.nom)[i]].rankLoLChiffre,
+            PosClassement: membres.nom[Object.keys(membres.nom)[i]].PosClassement,
+            PosClassementTFT: membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT,
+            EmoteLoL: membres.nom[Object.keys(membres.nom)[i]].EmoteLoL,
+            EmoteTFT: membres.nom[Object.keys(membres.nom)[i]].EmoteTFT,
+            IdDiscord: membres.nom[Object.keys(membres.nom)[i]].IdDiscord,
+            NombresVictoires: membres.nom[Object.keys(membres.nom)[i]].NombresVictoires,
+            NombresDefaites: membres.nom[Object.keys(membres.nom)[i]].NombresDefaites,
+            NombreGames: membres.nom[Object.keys(membres.nom)[i]].NombreGames,
+            RatioLol: membres.nom[Object.keys(membres.nom)[i]].RatioLol
+          }
+          fs.writeFile("./profile.json", JSON.stringify(membres), (err) => {
+            if (err) console.error(err)
+          });
+        }
       
-
-      for (var i = 0; i < Object.keys(membres.nom).length; i++) {
-        console.log(membres.nom[Object.keys(membres.nom)[i]].nomcompte)
-        try {
-          var Profiles = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + membres.nomcompte + '?api_key=' + riotApiKey);
-        } catch (err) {
-          delete membres.nom[Object.keys(membres.nom)[i]];
-          return;
-        }
-        membres.nom[membres.nom[Object.keys(membres.nom)[i]].nomcompte] = {
-          nom: membres.nom[Object.keys(membres.nom)[i]].nom,
-          nomcompte: membres.nom[Object.keys(membres.nom)[i]].nomcompte,
-          dernierMatch: membres.nom[Object.keys(membres.nom)[i]].dernierMatch,
-          dernierMatchTFT: membres.nom[Object.keys(membres.nom)[i]].dernierMatchTFT,
-          rankLoL: "",
-          tierLoL: "",
-          LPLoL: "",
-          rankTFT: "",
-          tierTFT: "",
-          LPTFT: "",
-          rankLoLChiffre: "",
-          PosClassement: "0",
-          PosClassementTFT: "0",
-          EmoteLoL: "",
-          EmoteTFT: "",
-          IdDiscord: membres.nom[Object.keys(membres.nom)[i]].IdDiscord,
-          NombresVictoires: 0,
-          NombresDefaites: 0,
-          NombreGames: 0,
-          RatioLol: 0
-        }
-        fs.writeFile("./profile.json", JSON.stringify(membres), (err) => {
-          if (err) console.error(err)
-        });
-      }
       message.channel.send({ content: "c carré" });
+      }
+    else {
+      message.channel.send({ content: "T pas le goat lache ca gamin" });
     }
-  } catch (err) {
-    console.log("marche pas frr");
   }
+  } catch (err) {
+    console.log(err);
+  }
+
 });
-*/
+
 
 client.on("messageCreate", async (message) => {
 
@@ -1099,22 +1109,25 @@ client.on("messageCreate", async (message) => {
   }
 });
 
+// put a custom emoji on the nicknames of people on the server
 
-
-
-
+client.on("messageCreate", async (message) => {
+  if (message.content == "*verify check") {
+    message.member.setNickname(`${message.member.displayName} ✅`)
+      .catch(err => console.log(err));
+    message.react(`✅`);
+  }
+});
 
 //1er bot
 client.login(keyDiscord);
 //client.login(keyDiscordbotsecondaire);
 client.on('ready', () => {
   console.log(`It's welcome time`);
-
-
-
+  client.user.setActivity("League of Legends", { type: "PLAYING" });
+  //HallOfFames.deleteLesMecsQuiExistentPlus();
   setTimeout(() => {
     messageLoose();
-    classementJS.Bestplayer();
   }
     , 2000);
 
