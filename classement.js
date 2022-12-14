@@ -14,19 +14,20 @@ const riotApiKeyTFT = (KeyRequise.riotApiKeyTFT);
 const keyDiscord = (KeyRequise.keyDiscord);
 const keyDiscordbotsecondaire = (KeyRequise.keyDiscordbotsecondaire);
 const { EmbedBuilder } = require('discord.js');
-const challenger = "<:challenger:1022113918107258891>";
-const grandmaster = "<:grandmaster:1022113905927004160>";
-const master = "<:master:1022113893297946634>";
-const diamond = "<:diamond:1022113868945821767>";
-const platine = "<:platinum:1022113842697863290>";
-const gold = "<:gold:1022113805683134545>";
-const silver = "<:silver:1022113818165383238>";
-const bronze = "<:bronze:1022113788067053568>";
-const iron = "<:iron:1022113772300677150>";
-const Unranked = "1023574302567714906";
+// const challenger = "<:challenger:1022113918107258891>";
+// const grandmaster = "<:grandmaster:1022113905927004160>";
+// const master = "<:master:1022113893297946634>";
+// const diamond = "<:diamond:1022113868945821767>";
+// const platine = "<:platinum:1022113842697863290>";
+// const gold = "<:gold:1022113805683134545>";
+// const silver = "<:silver:1022113818165383238>";
+// const bronze = "<:bronze:1022113788067053568>";
+// const iron = "<:iron:1022113772300677150>";
+// const Unranked = "1023574302567714906";
 
 const rankJEU = ["CHALLENGER", "GRANDMASTER", "MASTER", "DIAMOND", "PLATINUM", "GOLD", "SILVER", "BRONZE", "IRON", ""];
 const tierJEU = ["I", "II", "III", "IV"];
+const Emote = ["<:challenger:1022113918107258891>", "<:grandmaster:1022113905927004160>", "<:master:1022113893297946634>", "<:diamond:1022113868945821767>", "<:platinum:1022113842697863290>", "<:gold:1022113805683134545>", "<:silver:1022113818165383238>", "<:bronze:1022113788067053568>", "<:iron:1022113772300677150>", ""];
 
 var membres = require('./profile.json');
 
@@ -91,7 +92,7 @@ async function Bestplayer() {
   }
 
   tour = 1;
-  
+
   pos = 1;
   classementTAMERE();
 
@@ -118,42 +119,12 @@ let classementTAMERE = async () => {
     }
 
     let classement = '';
-    for (var y = 1; y < Object.keys(membres.nom).length+1; y++) {
+    for (var y = 1; y < Object.keys(membres.nom).length + 1; y++) {
       for (var i = 0; i < Object.keys(membres.nom).length; i++) {
-        if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "CHALLENGER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${challenger}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "GRANDMASTER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${grandmaster}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "MASTER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${master}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "DIAMOND") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${diamond}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "PLATINUM") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${platine}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "GOLD") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${gold}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "SILVER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${silver}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "BRONZE") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${bronze}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "IRON") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = `${iron}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y && membres.nom[Object.keys(membres.nom)[i]].rankLoL === "UNRANKED") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteLoL = '';
-        }
         if (membres.nom[Object.keys(membres.nom)[i]].PosClassement === y) {
-         
+          console.log(membres.nom[Object.keys(membres.nom)[i]].nom + " est en " + y + "e position");
+          MajJoueurEmote(membres.nom[Object.keys(membres.nom)[i]], "LoL")
           classement += `\`${y}\` ${membres.nom[Object.keys(membres.nom)[i]].nom}` + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + membres.nom[Object.keys(membres.nom)[i]].EmoteLoL + " " + membres.nom[Object.keys(membres.nom)[i]].rankLoL + " " + membres.nom[Object.keys(membres.nom)[i]].tierLoL + '\xa0\xa0\xa0\xa0' + `${(membres.nom[Object.keys(membres.nom)[i]].LPLoL).toString()}` + ' LP\n';
-          
         }
       }
     }
@@ -226,40 +197,11 @@ let classementTAMERETFT = async () => {
     }
 
     let classementtft = "";
-    for (var y = 1; y < Object.keys(membres.nom).length+1; y++) {
+    for (var y = 1; y < Object.keys(membres.nom).length + 1; y++) {
       for (var i = 0; i < Object.keys(membres.nom).length; i++) {
-        if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "CHALLENGER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${challenger}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "GRANDMASTER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${grandmaster}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "MASTER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${master}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "DIAMOND") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${diamond}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "PLATINUM") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${platine}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "GOLD") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${gold}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "SILVER") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${silver}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "BRONZE") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${bronze}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "IRON") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = `${iron}`;
-        }
-        else if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y && membres.nom[Object.keys(membres.nom)[i]].rankTFT === "UNRANKED") {
-          membres.nom[Object.keys(membres.nom)[i]].EmoteTFT = '';
-        }
-
         if (membres.nom[Object.keys(membres.nom)[i]].PosClassementTFT === y) {
+          console.log(membres.nom[Object.keys(membres.nom)[i]].nom + " est en " + y + "e position");
+          MajJoueurEmote(membres.nom[Object.keys(membres.nom)[i]], "TFT")
           classementtft += `\`${y}\` ${membres.nom[Object.keys(membres.nom)[i]].nom}` + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + membres.nom[Object.keys(membres.nom)[i]].EmoteTFT + " " + membres.nom[Object.keys(membres.nom)[i]].rankTFT + " " + membres.nom[Object.keys(membres.nom)[i]].tierTFT + '\xa0\xa0\xa0\xa0' + `${(membres.nom[Object.keys(membres.nom)[i]].LPTFT).toString()}` + ' LP\n';
         }
       }
@@ -312,4 +254,36 @@ let classementTFT = async (rank, tier) => {
     console.log(err);
   }
 }
+
+let MajJoueurEmote = async (Joueur,Jeu) => {
+  try {
+    console.log('---------------------------------');
+    for (var i = 0; i < 8; i++) {
+      var rankJEUEmote = rankJEU[i];
+      var EmoteJEU = Emote[i];
+      console.log("-----------------" + Joueur.nom + "-----------------");
+      console.log(rankJEUEmote);
+      console.log(EmoteJEU);
+      console.log(Joueur.rankLoL +"Rank lol");
+      if (Joueur.rankLoL === rankJEUEmote && Jeu === "LoL") {
+        Joueur.EmoteLoL = EmoteJEU;
+        console.log(Joueur.EmoteLoL + " " + Joueur.nom  +"---------LOL------------")
+      }else{
+        console.log("pas de rank lol")
+      }
+      if (Joueur.rankTFT === rankJEUEmote && Jeu === "TFT") {
+        Joueur.EmoteTFT = EmoteJEU;
+        console.log(Joueur.EmoteTFT + " " + Joueur.nom  +"---------tft------------")
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+
+
+
+
 client.login(keyDiscord);

@@ -16,6 +16,8 @@ var HallOfFames = require('./HallOfFames')
 const fs = require('fs');
 var Lancement = false;
 var LancementTFT = false;
+var membres = require('./profile.json');
+
 
 var KeyRequise = require('../key');
 const riotApiKey = (KeyRequise.riotApiKey);
@@ -666,7 +668,6 @@ client.on("messageCreate", async message => {
 let messageLoose = async () => {
   console.log("refresh");
   try {
-    var membres = require('./profile.json');
     var SalonResultat = 'testjason';
     for (var i = 0; i < Object.keys(membres.nom).length; i++) {
       var nomcompte = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
@@ -674,6 +675,8 @@ let messageLoose = async () => {
       var Profiles = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + nomcompte + '?api_key=' + riotApiKey);
       var matchID = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/' + Profiles.data.puuid + '/ids?start=0&count=20&api_key=' + riotApiKey);
       var games = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/' + matchID.data[0] + '?api_key=' + riotApiKey);
+      var Ranked = await axios.get('https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + Profiles.data.id + '?api_key=' + riotApiKey);
+
       //console.log("OK");
       var ProfileTFT = await axios.get('https://euw1.api.riotgames.com/tft/summoner/v1/summoners/by-name/' + nomcompte + '?api_key=' + riotApiKeyTFT);
       var matchIDTFT = await axios.get('https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/' + ProfileTFT.data.puuid + '/ids?start=0&count=20&api_key=' + riotApiKeyTFT);
@@ -715,8 +718,15 @@ let messageLoose = async () => {
             membres.nom[Object.keys(membres.nom)[i]].NombresVictoires++;
             client.channels.cache.find(channel => channel.name === SalonResultat).send(`gg`);
           }
-          var ratio = (membres.nom[Object.keys(membres.nom)[i]].NombresVictoires / membres.nom[Object.keys(membres.nom)[i]].NombreGames) * 100;
-          membres.nom[Object.keys(membres.nom)[i]].RatioLol = ratio.toFixed(2);
+          HallOfFames.MajJoueurRatio(membres.nom[Object.keys(membres.nom)[i]]);
+          for (var a = 0; a < Ranked.data.length; a++) {
+            if (Ranked.data[a].queueType === 'RANKED_SOLO_5x5') {
+              membres.nom[Object.keys(membres.nom)[i]].rankLoL = Ranked.data[a].tier;
+              membres.nom[Object.keys(membres.nom)[i]].tierLoL = Ranked.data[a].rank;
+              membres.nom[Object.keys(membres.nom)[i]].LPLoL = Ranked.data[a].leaguePoints;
+              break;
+            }
+          }
 
         }
       }
@@ -797,7 +807,6 @@ client.on("messageCreate", async message => {
   if (message.content.startsWith("!add")) {
     try {
       words = message.content.split(" ");
-      var membres = require('./profile.json');
       var nom = words[1];
 
       //if words is < 2, then the user didn't specify a name
@@ -878,7 +887,7 @@ client.on("messageCreate", async message => {
   if (message.content.startsWith("!remove")) {
     try {
       words = message.content.split(" ");
-      var membres = require('./profile.json');
+
       var nom = words[1];
 
       //if words is < 2, then the user didn't specify a name
@@ -929,7 +938,6 @@ client.on("messageCreate", async message => {
   if (message.content.startsWith("!tki")) {
     try {
       words = message.content.split(" ");
-      var membres = require('./profile.json');
       var nom = words[1];
 
       //if words is < 2, then the user didn't specify a name
@@ -976,9 +984,9 @@ client.on("messageCreate", async message => {
 client.on("messageCreate", async message => {
   try {
     if (message.content.startsWith("!test") && message.author.id === "274236782189608974") {
-      HallOfFames.HallOfFames();
+      membres.nom[Object.keys(membres.nom)[1]];
     }
-  }catch (err) {
+  } catch (err) {
     console.log(err);
   }
 });
@@ -992,10 +1000,10 @@ client.on("messageCreate", async message => {
 
 
 
-client.on("messageCreate", async message => {
+/*client.on("messageCreate", async message => {
   try {
     if (message.content.startsWith("!reset") && message.author.id === "274236782189608974") {
-      var membres = require('./profile.json');
+      
 
       for (var i = 0; i < Object.keys(membres.nom).length; i++) {
         console.log(membres.nom[Object.keys(membres.nom)[i]].nomcompte)
@@ -1037,11 +1045,10 @@ client.on("messageCreate", async message => {
     console.log("marche pas frr");
   }
 });
-
+*/
 
 client.on("messageCreate", async (message) => {
 
-  var membres = require('./profile.json');
   if (message.content.startsWith("!ratio")) {
     try {
       words = message.content.split(" ");
@@ -1070,16 +1077,16 @@ client.on("messageCreate", async (message) => {
           if (membres.nom[Object.keys(membres.nom)[i]].NombresGames === 0) {
             message.channel.send("Ta pas de games cette semaine");
             return;
-          }else if (membres.nom[Object.keys(membres.nom)[i]].NombresVictoires === 0) {
+          } else if (membres.nom[Object.keys(membres.nom)[i]].NombresVictoires === 0) {
             message.channel.send("BAHAHA NUL 0 WIN");
             return;
-          }else{
-          var ratio = (membres.nom[Object.keys(membres.nom)[i]].NombresVictoires / membres.nom[Object.keys(membres.nom)[i]].NombresGames) * 100;
-          membres.nom[Object.keys(membres.nom)[i]].RatioLol = ratio.toFixed(2);
-          message.channel.send({ content: "Le ratio de " + membres.nom[Object.keys(membres.nom)[i]].nom + " est de " + membres.nom[Object.keys(membres.nom)[i]].RatioLol + "%" });
-          return;
+          } else {
+            var ratio = (membres.nom[Object.keys(membres.nom)[i]].NombresVictoires / membres.nom[Object.keys(membres.nom)[i]].NombresGames) * 100;
+            membres.nom[Object.keys(membres.nom)[i]].RatioLol = ratio.toFixed(2);
+            message.channel.send({ content: "Le ratio de " + membres.nom[Object.keys(membres.nom)[i]].nom + " est de " + membres.nom[Object.keys(membres.nom)[i]].RatioLol + "%" });
+            return;
+          }
         }
-      }
       }
       message.channel.send({ content: "Joueur non trouvé" });
 
@@ -1102,7 +1109,17 @@ client.login(keyDiscord);
 //client.login(keyDiscordbotsecondaire);
 client.on('ready', () => {
   console.log(`It's welcome time`);
-  messageLoose();
+
+
+
+  setTimeout(() => {
+    messageLoose();
+    classementJS.Bestplayer();
+  }
+    , 2000);
+
+
+
   setInterval(() => {
     messageLoose();
   }, 3600000);
