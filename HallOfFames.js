@@ -1,11 +1,11 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({
-  intents: [
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildBans,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,]
+    intents: [
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildBans,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,]
 });
 const axios = require('axios');
 var KeyRequise = require('../key');
@@ -17,9 +17,21 @@ const { EmbedBuilder } = require('discord.js');
 var membres = require('./profile.json');
 
 module.exports.HallOfFames = HallOfFames;
+module.exports.MajJoueurRatio = MajJoueurRatio;
+module.exports.MajJoueurEmote = MajJoueurEmote;
+//module.exports.MajJoueurElo = MajJoueurElo;
+module.exports.PireWinRate = PireWinRate;
+module.exports.MeilleurWinRate = MeilleurWinRate;
+module.exports.PireRatio = PireRatio;
+module.exports.MeilleurRatio = MeilleurRatio;
+
+
+
+
+
 
 async function HallOfFames() {
-    try{
+    try {
         await MeilleurWinRate();
     } catch (error) {
         console.error(error);
@@ -27,8 +39,40 @@ async function HallOfFames() {
 }
 
 
-let PireWinRate = async () => {
-    try{
+async function MajJoueurRatio(Joueur){
+    try {
+
+        var ratio = (Joueur.NombresVictoires / Joueur.NombreGames) * 100;
+        Joueur.RatioLol = ratio.toFixed(2);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function MajJoueurEmote(Joueur){
+    try {
+
+        
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// let MajJoueurElo = async (joueur,typegame) => {
+//     try{
+//         joueur.rankLoL = Ranked.data[y].tier;
+//         membres.nom[Object.keys(membres.nom)[i]].tierLoL = Ranked.data[typegame].rank;
+//         membres.nom[Object.keys(membres.nom)[i]].LPLoL = Ranked.data[typegame].leaguePoints;
+//     } catch (error) {
+//         console.error(error);
+//     }
+// }
+
+
+async function PireWinRate() {
+    try {
 
     } catch (error) {
         console.error(error);
@@ -36,8 +80,8 @@ let PireWinRate = async () => {
 }
 
 
-let MeilleurWinRate = async () => {
-    try{
+async function MeilleurWinRate() {
+    try {
 
     } catch (error) {
         console.error(error);
@@ -45,16 +89,16 @@ let MeilleurWinRate = async () => {
 }
 
 
-let PireRatio = async () => {
-    try{
+async function PireRatio() {
+    try {
 
     } catch (error) {
         console.error(error);
     }
 }
 
-let MeilleurRatio = async () => {
-    try{
+async function MeilleurRatio() {
+    try {
 
     } catch (error) {
         console.error(error);
