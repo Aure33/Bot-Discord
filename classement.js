@@ -9,11 +9,13 @@ const client = new Client({
 });
 const axios = require('axios');
 var KeyRequise = require('../key');
+var HallOfFames = require('./HallOfFames');
 const riotApiKey = (KeyRequise.riotApiKey);
 const riotApiKeyTFT = (KeyRequise.riotApiKeyTFT);
 const keyDiscord = (KeyRequise.keyDiscord);
 const keyDiscordbotsecondaire = (KeyRequise.keyDiscordbotsecondaire);
 const { EmbedBuilder } = require('discord.js');
+const fs = require('fs');
 // const challenger = "<:challenger:1022113918107258891>";
 // const grandmaster = "<:grandmaster:1022113905927004160>";
 // const master = "<:master:1022113893297946634>";
@@ -37,8 +39,8 @@ var posTFT
 
 async function Bestplayer() {
   try {
+    HallOfFames.deleteLesMecsQuiExistentPlus();
     for (var i = 0; i < Object.keys(membres.nom).length; i++) {
-
       var nomcompte = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
       var Profiles = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + nomcompte + '?api_key=' + riotApiKey);
       var Ranked = await axios.get('https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + Profiles.data.id + '?api_key=' + riotApiKey);
@@ -255,25 +257,15 @@ let classementTFT = async (rank, tier) => {
   }
 }
 
-let MajJoueurEmote = async (Joueur,Jeu) => {
+let MajJoueurEmote = async (Joueur, Jeu) => {
   try {
-    console.log('---------------------------------');
     for (var i = 0; i < 8; i++) {
       var rankJEUEmote = rankJEU[i];
       var EmoteJEU = Emote[i];
-      console.log("-----------------" + Joueur.nom + "-----------------");
-      console.log(rankJEUEmote);
-      console.log(EmoteJEU);
-      console.log(Joueur.rankLoL +"Rank lol");
       if (Joueur.rankLoL === rankJEUEmote && Jeu === "LoL") {
         Joueur.EmoteLoL = EmoteJEU;
-        console.log(Joueur.EmoteLoL + " " + Joueur.nom  +"---------LOL------------")
-      }else{
-        console.log("pas de rank lol")
-      }
-      if (Joueur.rankTFT === rankJEUEmote && Jeu === "TFT") {
+      } else if (Joueur.rankTFT === rankJEUEmote && Jeu === "TFT") {
         Joueur.EmoteTFT = EmoteJEU;
-        console.log(Joueur.EmoteTFT + " " + Joueur.nom  +"---------tft------------")
       }
     }
   } catch (error) {

@@ -14,6 +14,7 @@ const riotApiKeyTFT = (KeyRequise.riotApiKeyTFT);
 const keyDiscord = (KeyRequise.keyDiscord);
 const keyDiscordbotsecondaire = (KeyRequise.keyDiscordbotsecondaire);
 const { EmbedBuilder } = require('discord.js');
+const fs = require('fs');
 var membres = require('./profile.json');
 
 module.exports.HallOfFames = HallOfFames;
@@ -24,6 +25,8 @@ module.exports.PireWinRate = PireWinRate;
 module.exports.MeilleurWinRate = MeilleurWinRate;
 module.exports.PireRatio = PireRatio;
 module.exports.MeilleurRatio = MeilleurRatio;
+module.exports.deleteLesMecsQuiExistentPlus = deleteLesMecsQuiExistentPlus;
+
 
 
 
@@ -100,6 +103,30 @@ async function PireRatio() {
 async function MeilleurRatio() {
     try {
 
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function deleteLesMecsQuiExistentPlus() {
+    try {
+        for (var y = 0; y < Object.keys(membres.nom).length; y++) {
+            for (var i = 0; i < Object.keys(membres.nom).length; i++) {
+            console.log(membres.nom[Object.keys(membres.nom)[i]].nomcompte)
+            try {
+              var Profiles = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + membres.nom[Object.keys(membres.nom)[i]].nomcompte + '?api_key=' + riotApiKey);
+            } catch (err) {
+              // if the user doesn't exist, we delete it from the json file
+              console.log(err);
+              var joueurSupprime = membres.nom[Object.keys(membres.nom)[i]];
+              delete membres.nom[Object.keys(membres.nom)[i]];
+              fs.writeFile("./profile.json", JSON.stringify(membres), (err) => {
+                if (err) console.error(err)
+              });
+                console.log(joueurSupprime.nomcompte + " a été supprimé de la liste des joueurs car il n'existe plus");
+            }
+            }
+        }
     } catch (error) {
         console.error(error);
     }
