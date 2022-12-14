@@ -8,8 +8,11 @@ const client = new Client({
     GatewayIntentBits.MessageContent,]
 });
 const axios = require('axios');
-const riotApiKey = ('RGAPI-d7d2ccdd-3ac1-48c9-9a2b-d1bea7cc3bb1');
-const riotApiKeyTFT = ('RGAPI-9be7583c-f892-48c2-9401-15eb37720010');
+var KeyRequise = require('../key');
+const riotApiKey = (KeyRequise.riotApiKey);
+const riotApiKeyTFT = (KeyRequise.riotApiKeyTFT);
+const keyDiscord = (KeyRequise.keyDiscord);
+const keyDiscordbotsecondaire = (KeyRequise.keyDiscordbotsecondaire);
 const { EmbedBuilder } = require('discord.js');
 const challenger = "<:challenger:1022113918107258891>";
 const grandmaster = "<:grandmaster:1022113905927004160>";
@@ -309,5 +312,4 @@ let classementTFT = async (rank, tier) => {
     console.log(err);
   }
 }
-
-client.login('OTg1MzI5OTU2MDYwMDEyNTU0.GfQPCs.uMMnBVIQ3L9pPS9V07370jc5uge7map5OBunIo');
+client.login(keyDiscord);
