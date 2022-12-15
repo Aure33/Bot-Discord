@@ -39,7 +39,6 @@ var posTFT
 
 async function Bestplayer() {
   try {
-    HallOfFames.deleteLesMecsQuiExistentPlus();
     for (var i = 0; i < Object.keys(membres.nom).length; i++) {
       var nomcompte = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
       var Profiles = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + nomcompte + '?api_key=' + riotApiKey);
@@ -136,7 +135,7 @@ let classementTAMERE = async () => {
       .setColor(0x51267)
       .addFields({ name: 'Top LOL', value: classement },)
 
-    client.channels.cache.find(channel => channel.name === "testjason").send({ embeds: [embedLOL] });
+    client.channels.cache.find(channel => channel.name === "classement").send({ embeds: [embedLOL] });
 
   } catch (err) {
     console.log(err);
@@ -212,7 +211,7 @@ let classementTAMERETFT = async () => {
       .setAuthor({ name: 'Classement TFT', iconURL: 'https://play-lh.googleusercontent.com/QcFYcOUpV0OdTKzGlmKcGVPlH1eMOW97cXXkqZtPCuC-0WwCTInMVOan_Fywan89_l8', url: 'https://discord.js.org' })
       .setColor(0x51267)
       .addFields({ name: 'Top TFT', value: classementtft },)
-    client.channels.cache.find(channel => channel.name === "testjason").send({ embeds: [embedTFT] });
+    client.channels.cache.find(channel => channel.name === "classement").send({ embeds: [embedTFT] });
   } catch (err) {
     console.log(err);
   }
