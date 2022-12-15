@@ -39,11 +39,22 @@ client.on("messageCreate", async (message) => {
 
   if (message.content.startsWith("!profile")) {
     try {
-      var words = message.content.split(' ');
-
-      words[1] = encodeURI(words[1]);
+      words = message.content.split(" ");
       var names = words[1];
 
+      //if words is < 2, then the user didn't specify a name
+      if (words.length > 2) {
+        for (var i = 2; i < words.length; i++) {
+          names += words[i];
+        }
+      } else if (words.length === 1) {
+        message.channel.send({ content: "Tu veux que je add qui avec ca enculé" });
+        return;
+      }
+      names = names.toLowerCase();
+      nomTMP = names;
+      names = encodeURI(names)
+      console.log(names)
       var a;
       var x = -1;
       try {
@@ -196,6 +207,184 @@ client.on("messageCreate", async (message) => {
   }
 
 })
+
+
+
+
+
+
+
+client.on("messageCreate", async (message) => {
+
+  if (message.content.startsWith("!myprofile")) {
+    try {
+      for (var i = 0; i < Object.keys(membres.nom).length; i++) {
+        if (membres.nom[Object.keys(membres.nom)[i]].IdDiscord === message.author.id) {
+          var names = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
+        }
+      }
+      var a;
+      var x = -1;
+      try {
+
+        var Profile = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + names + "?api_key=" + riotApiKey);
+        var Ranked = await axios.get('https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + Profile.data.id + '?api_key=' + riotApiKey);
+        var Mastery = await axios.get('https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/' + Profile.data.id + '?api_key=' + riotApiKey);
+        var champList = require('./champ.json');
+        var champname1 = champList.data[Object.keys(champList.data).find(name => champList.data[name].key == Mastery.data[0].championId)].name;
+        console.log(Profile)
+      } catch (e) {
+        message.channel.send({ content: 'Change le pseudo fdp' });
+        a = 1
+      }
+      finally {
+        if (a != 1) {
+          // console.log(Profile.data);
+          // console.log(Ranked);
+          for (var i = 0; i < Ranked.data.length; i++) {
+            if (Ranked.data[i].queueType === 'RANKED_SOLO_5x5') {
+              var rank = Ranked.data[i].tier;
+              var division = Ranked.data[i].rank;
+              var leaguePoints = (Ranked.data[i].leaguePoints).toString();
+              var x = 1;
+              break;
+            } else {
+              var x = 0;
+            }
+
+          }
+          //  console.log(rank)
+          //const tierRank = ranked.data.tier
+          //var args = message.content.slice(prefix.length).split('/ +/');
+          var exampleEmbed = {
+            color: 0x0099ff,
+            title: 'Stat lol',
+            url: 'https://euw.op.gg/summoners/euw/' + names,
+            author: {
+              name: Profile.data.name,
+              icon_url: 'https://opgg-static.akamaized.net/images/profile_icons/profileIcon' + Profile.data.profileIconId + '.jpg?image=q_auto&image=q_auto,f_webp,w_auto&v=1655280878653',
+              url: 'https://euw.op.gg/summoners/euw/' + names,
+            },
+            thumbnail: {
+              url: 'https://opgg-static.akamaized.net/images/medals_new/' + rank + '.png?image=q_auto,f_webp,w_144&v=1655280878465',
+            },
+            fields: [
+              {
+                name: "Niveau d'invocateur",
+                value: (Profile.data.summonerLevel).toString(),
+              },
+              {
+                name: "ID du compte",
+                value: (Profile.data.id).toString(),
+              },
+
+              {
+                name: "RANK",
+                value: rank + " " + division + " " + leaguePoints + "LP",
+
+              },
+              {
+                name: "Champion préféré : " + champname1,
+                value: (Mastery.data[0].championPoints).toString(),
+              },
+              {
+                name: '\u200b',
+                value: '\u200b',
+                inline: false,
+              },
+
+            ],
+            thumbnail: {
+              url: 'https://opgg-static.akamaized.net/images/medals_new/' + rank + '.png?image=q_auto,f_webp,w_144&v=1655280878465',
+            },
+            image: {
+              url: 'https://ddragon.leagueoflegends.com/cdn/11.4.1/img/profileicon/' + Profile.data.profIconId + '.png',
+            },
+            timestamp: new Date(),
+            footer: {
+              text: 'Requested by ' + message.author.username,
+              icon_url: 'https://ddragon.leagueoflegends.com/cdn/11.4.1/img/profileicon/' + Profile.data.profIconId + '.png',
+            },
+          };
+          //  console.log(profile);
+          //console.log(Ranked);
+          //console.log(x);
+          if (x === -1 || x === 0) {
+            var exampleEmbed = {
+              color: 0x0099ff,
+              title: 'Stat lol',
+              url: 'https://euw.op.gg/summoners/euw/' + names,
+              author: {
+                name: Profile.data.name,
+                icon_url: 'https://opgg-static.akamaized.net/images/profile_icons/profileIcon' + Profile.data.profileIconId + '.jpg?image=q_auto&image=q_auto,f_webp,w_auto&v=1655280878653',
+                url: 'https://euw.op.gg/summoners/euw/' + names,
+              },
+              thumbnail: {
+                url: 'http://ddragon.leagueoflegends.com/cdn/12.11.1/img/champion/' + champname1 + '.png',
+              },
+              fields: [
+                {
+                  name: "Niveau d'invocateur",
+                  value: (Profile.data.summonerLevel).toString(),
+                },
+                {
+                  name: "ID du compte",
+                  value: (Profile.data.id).toString(),
+                },
+
+                {
+                  name: "RANK",
+                  value: " t pas classé fdp ",
+
+                },
+                {
+                  name: "Champion préféré : " + champname1,
+                  value: (Mastery.data[0].championPoints).toString(),
+                },
+                {
+                  name: '\u200b',
+                  value: '\u200b',
+                  inline: false,
+                },
+
+              ],
+              thumbnail: {
+                url: 'http://ddragon.leagueoflegends.com/cdn/12.11.1/img/champion/' + champname1 + '.png',
+              },
+              image: {
+                url: 'https://ddragon.leagueoflegends.com/cdn/11.4.1/img/profileicon/' + Profile.data.profIconId + '.png',
+              },
+              timestamp: new Date(),
+              footer: {
+                text: 'Requested by ' + message.author.username,
+                icon_url: 'https://ddragon.leagueoflegends.com/cdn/11.4.1/img/profileicon/' + Profile.data.profIconId + '.png',
+              },
+            };
+            message.channel.send({ embeds: [exampleEmbed] });
+          } else {
+            message.channel.send({ embeds: [exampleEmbed] });
+          }
+
+        }
+      }
+
+    }
+    catch (err) {
+      console.log(err);
+    }
+  }
+
+})
+
+
+
+
+
+
+
+
+
+
 
 //MASTERY
 client.on("messageCreate", async message => {
@@ -949,7 +1138,7 @@ client.on("messageCreate", async message => {
     try {
       words = message.content.split(" ");
       var nom = words[1];
-
+      var nomTrouvé = "";
       //if words is < 2, then the user didn't specify a name
       if (words.length > 2) {
         for (var i = 2; i < words.length; i++) {
@@ -959,6 +1148,23 @@ client.on("messageCreate", async message => {
         message.channel.send({ content: "Tu veux que je trouve qui avec ca enculé" });
         return;
       }
+      if (nom.startsWith("<@")) {
+        nom = nom.replace("<@", "");
+        nom = nom.replace(">", "");
+        nom = nom.replace("!", "");
+        for (var i = 0; i < Object.keys(membres.nom).length; i++) {
+          if (membres.nom[Object.keys(membres.nom)[i]].IdDiscord === nom) {
+            nomTrouvé = Object.keys(membres.nom)[i];
+            message.channel.send({ content: "C'est " + nomTrouvé });
+            break;
+         
+        }
+      }
+      if  (nomTrouvé === ""){
+        message.channel.send({ content: "Joueur non trouvé" });
+      }
+      }else{
+      nom = nom.toLowerCase();
       nomTMP = nom;
       nom = encodeURI(nom)
       console.log(nom)
@@ -973,7 +1179,7 @@ client.on("messageCreate", async message => {
         message.channel.send({ content: "Joueur non trouvé" });
       }
 
-
+    }
     }
     catch (err) {
       console.log(err);
@@ -1113,8 +1319,7 @@ client.on("messageCreate", async (message) => {
 
 client.on("messageCreate", async (message) => {
   if (message.content == "*verify check") {
-    message.member.setNickname(`${message.member.displayName} ✅`)
-      .catch(err => console.log(err));
+    message.member.setNickname(message.content.replace('changeNick ', ''));
     message.react(`✅`);
   }
 });
@@ -1124,6 +1329,7 @@ client.login(keyDiscord);
 //client.login(keyDiscordbotsecondaire);
 client.on('ready', () => {
   console.log(`It's welcome time`);
+  
   client.user.setActivity("League of Legends", { type: "PLAYING" });
   //HallOfFames.deleteLesMecsQuiExistentPlus();
   setTimeout(() => {
