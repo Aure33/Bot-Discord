@@ -48,7 +48,7 @@ client.on("messageCreate", async (message) => {
           names += words[i];
         }
       } else if (words.length === 1) {
-        message.channel.send({ content: "Tu veux que je add qui avec ca enculé" });
+        message.channel.send({ content: "Tu veux que je regarde le profile de qui avec ca enculé" });
         return;
       }
       names = names.toLowerCase();
@@ -465,8 +465,22 @@ client.on("messageCreate", async message => {
 client.on("messageCreate", async message => {
   if (message.content.startsWith("!topmastery")) {
     try {
-      const words = message.content.split(' ');
+      words = message.content.split(" ");
       var names = words[1];
+
+      //if words is < 2, then the user didn't specify a name
+      if (words.length > 2) {
+        for (var i = 2; i < words.length; i++) {
+          names += words[i];
+        }
+      } else if (words.length === 1) {
+        message.channel.send({ content: "Tu veux que je regarde le profile de qui avec ca enculé" });
+        return;
+      }
+      names = names.toLowerCase();
+      nomTMP = names;
+      names = encodeURI(names)
+      console.log(names)
       var champList = require('./champ.json');
       const profile = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + names + "?api_key=" + riotApiKey);
       const Mastery = await axios.get('https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/' + profile.data.id + '?api_key=' + riotApiKey);
@@ -583,8 +597,22 @@ client.on("messageCreate", async message => {
 client.on("messageCreate", async message => {
   if (message.content.startsWith("!TFT")) {
     try {
-      var words = message.content.split(' ');
+      words = message.content.split(" ");
       var names = words[1];
+
+      //if words is < 2, then the user didn't specify a name
+      if (words.length > 2) {
+        for (var i = 2; i < words.length; i++) {
+          names += words[i];
+        }
+      } else if (words.length === 1) {
+        message.channel.send({ content: "Tu veux que je regarde le profile de qui avec ca enculé" });
+        return;
+      }
+      names = names.toLowerCase();
+      nomTMP = names;
+      names = encodeURI(names)
+      console.log(names)
       var a;
       var x = -1;
       var y = -1;
@@ -866,7 +894,6 @@ client.on("messageCreate", async message => {
 let messageLoose = async () => {
   console.log("refresh");
   try {
-    HallOfFames.deleteLesMecsQuiExistentPlus();
     var SalonResultat = 'testjason';
     for (var i = 0; i < Object.keys(membres.nom).length; i++) {
       var nomcompte = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
@@ -1329,15 +1356,18 @@ client.login(keyDiscord);
 //client.login(keyDiscordbotsecondaire);
 client.on('ready', () => {
   console.log(`It's welcome time`);
-  classementJS.Bestplayer();
   client.user.setActivity("League of Legends", { type: "PLAYING" });
   //HallOfFames.deleteLesMecsQuiExistentPlus();
   setTimeout(() => {
     messageLoose();
+    classementJS.Bestplayer();
   }
     , 2000);
 
-
+    setTimeout(() => {
+      classementJS.Bestplayer();
+    }
+      , 20000);
 
   setInterval(() => {
     messageLoose();
