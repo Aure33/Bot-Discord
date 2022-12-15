@@ -1329,7 +1329,7 @@ client.login(keyDiscord);
 //client.login(keyDiscordbotsecondaire);
 client.on('ready', () => {
   console.log(`It's welcome time`);
-  
+  classementJS.Bestplayer();
   client.user.setActivity("League of Legends", { type: "PLAYING" });
   //HallOfFames.deleteLesMecsQuiExistentPlus();
   setTimeout(() => {
