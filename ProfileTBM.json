@@ -1,0 +1,41 @@
+{
+    "users": [
+        {
+            "name": "By_YolKer",
+            "discordId": "274236782189608974",
+            "favorites": [
+                {
+                    "arret": "3323",
+                    "ligne": "10",
+                    "arretName": "Village 6 IUT (côté IUT)"
+                },
+                {
+                    "arret": "7801",
+                    "ligne": "10",
+                    "arretName": "Médiathèque (côté Château Margaut)"
+                },
+                {
+                    "arret": "7801",
+                    "ligne": "31",
+                    "arretName": "Médiathèque (côté Château Margaut)"
+                },
+                {
+                    "arret": "681",
+                    "ligne": "08",
+                    "arretName": "Hôpital Pellegrin (entrée Est)"
+                }
+            ]
+        },
+        {
+            "name": "Uxy_ (ツ)",
+            "discordId": "280315935431196675",
+            "favorites": [
+                {
+                    "arret": "3323",
+                    "ligne": "10",
+                    "arretName": "Village 6 IUT (côté IUT)"
+                }
+            ]
+        }
+    ]
+}

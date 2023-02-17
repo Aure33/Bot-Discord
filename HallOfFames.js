@@ -45,7 +45,7 @@ async function HallOfFames() {
 async function MajJoueurRatio(Joueur){
     try {
 
-        var ratio = (Joueur.NombresVictoires / Joueur.NombreGames) * 100;
+        var ratio = (Joueur.NombresVictoires / Joueur.NombresGames) * 100;
         Joueur.RatioLol = ratio.toFixed(2);
 
     } catch (error) {

@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, ActivityType } = require('discord.js');
 const client = new Client({
   intents: [
     GatewayIntentBits.DirectMessages,
@@ -21,6 +21,9 @@ const axios = require('axios');
 const { EmbedBuilder } = require('discord.js');
 var classementJS = require('./classement')
 var HallOfFames = require('./HallOfFames')
+var tbm = require('./tbm')
+const jsonFile = './ProfileTBM.json';
+
 //var ratio = require('./HallOfFames')
 const fs = require('fs');
 var Lancement = false;
@@ -28,14 +31,228 @@ var LancementTFT = false;
 var membres = require('./profile.json');
 const challenger = "<:challenger:1022113918107258891>";
 
+
 var KeyRequise = require('../key');
 const riotApiKey = (KeyRequise.riotApiKey);
 const riotApiKeyTFT = (KeyRequise.riotApiKeyTFT);
 const keyDiscord = (KeyRequise.keyDiscord);
 const keyDiscordbotsecondaire = (KeyRequise.keyDiscordbotsecondaire);
-
+var nbPersonnesFile = 0;
 
 client.on("messageCreate", async (message) => {
+  try {
+    if (message.content.startsWith("!tbm")) {
+      const args = message.content.split(" ");
+      if (args.length < 3 && args[1] !== "help" && args[1] !== "show" && args[1] !== "stop" && args[1] !== "add" && args[1] !== "remove" && args[1] !== "list") {
+        message.channel.send("ta mal ecris cousin: !tbm help pour plus d'info");
+        return;
+      } else if (args[1] === "help") {
+        const exampleEmbed = {
+          color: 0x0099ff,
+          title: 'Liste Commande',
+          url: "https://www.youtube.com/watch?v=fahfM6HY7q4",
+
+          author: {
+            name: "Commande TBM",
+            icon_url: 'https://pbs.twimg.com/profile_images/1588007055/IMG_0956_3_400x400.jpg',
+            url: 'https://www.youtube.com/watch?v=fahfM6HY7q4',
+          },
+          thumbnail: {
+            url: 'https://pbs.twimg.com/profile_images/1588007055/IMG_0956_3_400x400.jpg',
+          },
+          fields: [
+            {
+              name: "!tbm + nomArret/numArret + numeroLigne",
+
+              value: 'Affiche le prochain Bus',
+            },
+            {
+              name: "!tbm stop + nomArret/numArret",
+
+              value: 'Affiche la liste des bus qui passent à l\'arrêt',
+            },
+            {
+              name: "!tbm show + nomArret/numArret",
+
+              value: 'Affiche la liste des arrets ressemblant à la recherche',
+            },
+            {
+              name: "!tbm add + numArret + numeroLigne",
+
+              value: 'Ajoute un arret,numéro de ligne à la liste de favoris',
+            },
+            {
+              name: "!mytbm",
+
+              value: 'Affiche ta liste de favoris',
+            }
+          ],
+
+          timestamp: new Date(),
+          footer: {
+            text: 'Requested by ' + message.author.username,
+          },
+        };
+
+        message.channel.send({ embeds: [exampleEmbed] });
+        return;
+      } else if (args[1] === "show") {
+        let arret = args.slice(2).join(" ");
+        if (arret.length < 3) {
+          message.channel.send("tu veux bz le serv toi");
+          return;
+        }
+        arret = arret.toLowerCase();
+        const listeStop = await tbm.listeArrets(arret);
+        const { listBus, stopName } = listeStop;
+        if (listBus.length === 0) {
+          message.channel.send("Aucun arrêt ressemblant à " + arret);
+          return;
+        }
+        message.channel.send("Liste des arrêts ressemblant à " + stopName + " : " + listBus);
+        return;
+
+
+
+      } else if (args[1] === "stop") {
+        let id = args.slice(2).join(" ");
+        const AllBus = await tbm.BusPourArret(id);
+        const { listBus, stopName } = AllBus;
+        if (listBus.length === 0) {
+          message.channel.send("Aucun bus passe à cet arrêt");
+          return;
+        } else {
+          message.channel.send("Liste des bus de l'arrêt " + stopName + " : " + listBus);
+        }
+      }
+      else if (args[1] === "add") {
+        try {
+          Arret = args.slice(2, -1).join(" ");
+          ligne = args[args.length - 1];
+          ligne = ligne.toString().padStart(2, '0');
+          let existe = await tbm.tbmExiste(Arret, ligne);
+          if (!existe) {
+            console.log(await tbm.tbmExiste(Arret, ligne));
+            message.channel.send("arret ou ligne inconnu");
+            return;
+          }
+          tbm.addFavorite(message.author.username, Arret, ligne, message.author.id);
+          message.channel.send("Favoris ajouté");
+        } catch (e) {
+          message.channel.send("Erreur");
+        }
+      }
+      else if (args[1] === "remove") {
+        try {
+          Arret = args.slice(2, -1).join(" ");
+          ligne = args[args.length - 1];
+          ligne = ligne.toString().padStart(2, '0');
+          let existe = await tbm.tbmExiste(Arret, ligne);
+          if (!existe) {
+            console.log(tbm.tbmExiste(Arret, ligne));
+            message.channel.send("arret ou ligne inconnu");
+            return;
+          }
+          tbm.removeFavorite(message.author.username, Arret, ligne, message.author.id);
+          message.channel.send("Favoris supprimé");
+        } catch (e) {
+          message.channel.send("Erreur");
+        }
+      }
+      else if (args[1] === "list") {
+        tbm.listFavorites(message.author.id)
+        .then((favorites) => {
+          if (favorites.length === 0) {
+            message.channel.send("Aucun favoris");
+            console.log('Sent Aucun favoris');
+            return;
+          }
+          message.channel.send("Liste de vos favoris : " + JSON.stringify(favorites));
+          console.log('Sent Liste de vos favoris: ' + JSON.stringify(favorites));
+        })
+        .catch((error) => {
+          console.error(error);
+          message.channel.send("Erreur");
+        });
+      }
+      else {
+        const Name = args.slice(1, -1).join(" ");
+        if (Name.length < 3) {
+          message.channel.send("tu veux bz le serveur toi");
+          return;
+        }
+        let lineId = args[args.length - 1];
+        lineId = lineId.toString().padStart(2, '0');
+        const waitTime = await tbm.getTBMLineWaitInterval(Name, lineId);
+        const { HoraireBus1, stopId, stopList, stopName, destination_name } = waitTime;
+        console.log(stopName);
+
+
+        if (!waitTime) {
+          if (stopList.length === 0) {
+            message.channel.send(`L'arrêt ${stopName} n'existe pas.`);
+            return;
+          }
+          message.channel.send(`L'arrêt ${stopName} n'existe pas. Voici la liste des arrêts possibles: ${stopList}`);
+          return;
+        }
+
+        if (stopId === -1) {
+          if (stopList.length === 0) {
+            message.channel.send(`L'arrêt ${stopName} n'existee pas.`);
+            return;
+          }
+          message.channel.send(`L'arrêt ${stopName} n'existee pas. Voici la liste des arrêts possibles: ${stopList}`);
+          return;
+        }
+        if (waitTime === -1) {
+          message.channel.send(`Aucun résultat à l'heure actuelle pour l'arrêt ${stopName} et la ligne ${lineId}`);
+          return;
+        }
+        console.log(waitTime);
+
+        message.channel.send(`${HoraireBus1} minutes d'attente pour le bus de la ligne ${lineId} à l'arrêt ${stopName} en direction de ${destination_name}`);
+        console.log(stopId);
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
+
+  if (message.content.startsWith("!mytbm")) {
+    try {
+      idDiscord = message.author.id;
+      fs.readFile(jsonFile, 'utf8', (err, data) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        const jsonData = JSON.parse(data);
+        const user = jsonData.users.find(user => user.discordId === idDiscord);
+        if (!user) {
+          message.channel.send(`Tu n'as pas encore de favoris. Utilise la commande !tbm add pour en ajouter un`);
+          return;
+        }
+        for (const favorite of user.favorites) {
+          const arret = favorite.arret;
+          const ligne = favorite.ligne;
+          const arretName = favorite.arretName;
+          tbm.getTBMLineWaitInterval(arret, ligne).then(result => {
+            message.channel.send(`${result.stopName}, Ligne: ${ligne}, Destination: ${result.destination_name}, dans : ${result.HoraireBus1}`);
+          }).catch(error => {
+            message.channel.send(`Jcrois ya plus de bus pour ${arretName} ligne ${ligne}`);
+          });
+        }
+      });
+
+    }
+    catch (e) {
+      console.log(e);
+    }
+  }
+
+
 
   if (message.content.startsWith("!profile")) {
     try {
@@ -538,6 +755,74 @@ client.on("messageCreate", async message => {
 })
 
 
+
+client.on("messageCreate", async message => {
+  if (message.content.startsWith("!mytopmastery")) {
+    try {
+      for (var i = 0; i < Object.keys(membres.nom).length; i++) {
+        if (membres.nom[Object.keys(membres.nom)[i]].IdDiscord === message.author.id) {
+          var names = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
+        }
+      }
+      var champList = require('./champ.json');
+      const profile = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + names + "?api_key=" + riotApiKey);
+      const Mastery = await axios.get('https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/' + profile.data.id + '?api_key=' + riotApiKey);
+      var champname1 = champList.data[Object.keys(champList.data).find(name => champList.data[name].key == Mastery.data[0].championId)].name;
+      var champname2 = champList.data[Object.keys(champList.data).find(name => champList.data[name].key == Mastery.data[1].championId)].name;
+      var champname3 = champList.data[Object.keys(champList.data).find(name => champList.data[name].key == Mastery.data[2].championId)].name;
+
+
+      var exampleEmbed = {
+        color: 0x0099ff,
+        title: 'Premier ' + champname1,
+        url: 'https://euw.op.gg/summoners/euw/' + names,
+        author: {
+          name: "Top 3 Maitrise",
+          icon_url: 'https://opgg-static.akamaized.net/images/profile_icons/profileIcon' + profile.data.profileIconId + '.jpg?image=q_auto&image=q_auto,f_webp,w_auto&v=1655280878653',
+          url: 'https://euw.op.gg/summoners/euw/' + names,
+        },
+        thumbnail: {
+          url: 'http://ddragon.leagueoflegends.com/cdn/12.11.1/img/champion/' + champname1 + '.png',
+        },
+        fields: [
+          {
+            name: "Points de Maitrise",
+
+            value: (Mastery.data[0].championPoints).toString(),
+          },
+          {
+            name: "2ème " + champname2,
+            value: (Mastery.data[1].championPoints).toString(),
+          },
+          {
+            name: "3ème " + champname3,
+            value: (Mastery.data[2].championPoints).toString(),
+          },
+          {
+            name: '\u200b',
+            value: '\u200b',
+            inline: false,
+          },
+        ],
+
+        timestamp: new Date(),
+        footer: {
+          text: 'Requested by ' + message.author.username,
+          icon_url: 'https://ddragon.leagueoflegends.com/cdn/11.4.1/img/profileicon/' + profile.data.profIconId + '.png',
+        },
+      };
+
+      message.channel.send({ embeds: [exampleEmbed] });
+    }
+    catch (err) {
+      console.log(err);
+    }
+  }
+})
+
+
+
+
 //HELP
 client.on("messageCreate", async message => {
   if (message.content.startsWith("!help")) {
@@ -892,7 +1177,6 @@ client.on("messageCreate", async message => {
 
 //create a function 
 let messageLoose = async () => {
-  console.log("refresh");
   try {
     var SalonResultat = 'testjason';
     for (var i = 0; i < Object.keys(membres.nom).length; i++) {
@@ -921,7 +1205,7 @@ let messageLoose = async () => {
 
           }
           client.channels.cache.find(channel => channel.name === SalonResultat).send("Test sur : " + VNom);
-          membres.nom[Object.keys(membres.nom)[i]].NombreGames++;
+          membres.nom[Object.keys(membres.nom)[i]].NombresGames++;
           if (resultLOL === false) {
             membres.nom[Object.keys(membres.nom)[i]].NombresDefaites++;
 
@@ -1012,13 +1296,11 @@ let messageLoose = async () => {
       }
 
     }
-    console.log("OK CA MARCHE" + "TFT EST " + LancementTFT + "LOL EST " + Lancement)
     Lancement = true;
     LancementTFT = true;
 
   } catch (err) {
-    console.log(err);
-    console.log("  " + membres.nom[Object.keys(membres.nom)[i]].nom);
+    console.log(" erreur sur " + membres.nom[Object.keys(membres.nom)[i]].nom);
   }
 }
 
@@ -1086,8 +1368,9 @@ client.on("messageCreate", async message => {
           IdDiscord: message.author.id,
           NombresVictoires: 0,
           NombresDefaites: 0,
-          NombreGames: 0,
-          RatioLol: 0
+          NombresGames: 0,
+          RatioLol: 0,
+          RatioTFT: 0,
         }
 
         fs.writeFile("./profile.json", JSON.stringify(membres), (err) => {
@@ -1184,29 +1467,29 @@ client.on("messageCreate", async message => {
             nomTrouvé = Object.keys(membres.nom)[i];
             message.channel.send({ content: "C'est " + nomTrouvé });
             break;
-         
+
+          }
         }
-      }
-      if  (nomTrouvé === ""){
-        message.channel.send({ content: "Joueur non trouvé" });
-      }
-      }else{
-      nom = nom.toLowerCase();
-      nomTMP = nom;
-      nom = encodeURI(nom)
-      console.log(nom)
-      console.log(nomTMP)
-      console.log(message.author.id)
-      // remove the user from the json file
-
-      if (membres.nom[nomTMP] !== undefined) {
-
-        message.channel.send({ content: "C'est " + "<@" + membres.nom[nomTMP].IdDiscord + ">" });
+        if (nomTrouvé === "") {
+          message.channel.send({ content: "Joueur non trouvé" });
+        }
       } else {
-        message.channel.send({ content: "Joueur non trouvé" });
-      }
+        nom = nom.toLowerCase();
+        nomTMP = nom;
+        nom = encodeURI(nom)
+        console.log(nom)
+        console.log(nomTMP)
+        console.log(message.author.id)
+        // remove the user from the json file
 
-    }
+        if (membres.nom[nomTMP] !== undefined) {
+
+          message.channel.send({ content: "C'est " + "<@" + membres.nom[nomTMP].IdDiscord + ">" });
+        } else {
+          message.channel.send({ content: "Joueur non trouvé" });
+        }
+
+      }
     }
     catch (err) {
       console.log(err);
@@ -1227,7 +1510,22 @@ client.on("messageCreate", async message => {
 client.on("messageCreate", async message => {
   try {
     if (message.content.startsWith("!test") && message.author.id === "274236782189608974") {
-      membres.nom[Object.keys(membres.nom)[1]];
+      words = message.content.split(" ");
+      var nom = words[1];
+      //if words is < 2, then the user didn't specify a name
+      if (words.length > 2) {
+        for (var i = 2; i < words.length; i++) {
+          nom += words[i];
+        }
+      } else if (words.length === 1) {
+        message.channel.send({ content: "Tu veux que je trouve qui avec ca enculé" });
+        return;
+      }
+      console.log(membres.nom[nom]);
+      message.channel.send((membres.nom[nom].NombresGames).toString() + " Games");
+      message.channel.send((membres.nom[nom].NombresVictoires).toString() + " Victoires");
+      message.channel.send((membres.nom[nom].NombresDefaites).toString() + " Defaites");
+
     }
   } catch (err) {
     console.log(err);
@@ -1247,7 +1545,7 @@ client.on("messageCreate", async message => {
   try {
     if (message.content.startsWith("!reset")) {
       if (message.author.id === "274236782189608974") {
-        HallOfFames.deleteLesMecsQuiExistentPlus();
+        //HallOfFames.deleteLesMecsQuiExistentPlus();
         for (var i = 0; i < Object.keys(membres.nom).length; i++) {
           membres.nom[Object.keys(membres.nom)[i]] = {
             nomDiscord: membres.nom[Object.keys(membres.nom)[i]].nomDiscord,
@@ -1269,26 +1567,37 @@ client.on("messageCreate", async message => {
             IdDiscord: membres.nom[Object.keys(membres.nom)[i]].IdDiscord,
             NombresVictoires: membres.nom[Object.keys(membres.nom)[i]].NombresVictoires,
             NombresDefaites: membres.nom[Object.keys(membres.nom)[i]].NombresDefaites,
-            NombreGames: membres.nom[Object.keys(membres.nom)[i]].NombreGames,
-            RatioLol: membres.nom[Object.keys(membres.nom)[i]].RatioLol
+            NombresGames: membres.nom[Object.keys(membres.nom)[i]].NombresGames,
+            RatioLol: membres.nom[Object.keys(membres.nom)[i]].RatioLol,
+            RatioTFT: membres.nom[Object.keys(membres.nom)[i]].RatioTFT,
           }
           fs.writeFile("./profile.json", JSON.stringify(membres), (err) => {
             if (err) console.error(err)
           });
         }
-      
-      message.channel.send({ content: "c carré" });
+
+        message.channel.send({ content: "c carré" });
       }
-    else {
-      message.channel.send({ content: "T pas le goat lache ca gamin" });
+      else {
+        message.channel.send({ content: "T pas le goat lache ca gamin" });
+      }
     }
-  }
   } catch (err) {
     console.log(err);
   }
 
 });
 
+
+client.on("messageCreate", async message => {
+  try {
+    if (message.content.startsWith("!classementLOL")) {
+      classementJS.Bestplayer();
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 client.on("messageCreate", async (message) => {
 
@@ -1314,9 +1623,19 @@ client.on("messageCreate", async (message) => {
         nom = nom.replace(">", "");
         nom = nom.replace("!", "");
       }
+      else {
+        nom = nom.toLowerCase();
+        nomTMP = nom;
+        nom = encodeURI(nom)
+        console.log(nom)
+        console.log(nomTMP)
+        console.log(message.author.id)
+      }
+
+
       console.log(nom)
       for (var i = 0; i < Object.keys(membres.nom).length; i++) {
-        if (membres.nom[Object.keys(membres.nom)[i]].IdDiscord === nom) {
+        if (membres.nom[Object.keys(membres.nom)[i]].IdDiscord === nom || membres.nom[Object.keys(membres.nom)[i]].nomcompte === nom) {
           if (membres.nom[Object.keys(membres.nom)[i]].NombresGames === 0) {
             message.channel.send("Ta pas de games cette semaine");
             return;
@@ -1351,44 +1670,84 @@ client.on("messageCreate", async (message) => {
   }
 });
 
+client.on("messageCreate", async (message) => {
+  words = message.content.split(" ");
+  var nom = words[1];
+  var nomTMP = nom;
+  if (message.content.startsWith("t mort") && message.author.id === "985329956060012554") {
+    message.channel.send("t mort" + nomTMP);
+  }
+  if (message.content.startsWith("!harcelement")) {
+    try {
+      words = message.content.split(" ");
+      var nom = words[1];
+      var nomTMP = nom;
+      if (nom.startsWith("<@")) {
+        nom = nom.replace("<@", "");
+        nom = nom.replace(">", "");
+        nom = nom.replace("!", "");
+      }
+      message.channel.send({ content: "Tu veux que je le harcèle ?" });
+      const filter = m => m.author.id === message.author.id;
+      const collector = message.channel.createMessageCollector({ filter, time: 10000 });
+      collector.on('collect', m => {
+        if (m.content === 'oui') {
+          message.channel.send("t mort" + nomTMP);
+        } else if (m.content === 'non') {
+          message.channel.send({ content: "Ok je te laisse tranquille" });
+          collector.stop();
+        } else {
+          message.channel.send({ content: "Réponds par oui ou par non" });
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+});
+
+let getNbJoueur = () => {
+  return Object.keys(membres.nom).length;
+}
+
+let MajActivite = () => {
+  client.user.setPresence({
+    activities: [{ name: `${getNbJoueur()} joueurs !`, type: ActivityType.Watching }],
+    status: 'online',
+  });
+}
+
 //1er bot
 client.login(keyDiscord);
 //client.login(keyDiscordbotsecondaire);
 client.on('ready', () => {
   console.log(`It's welcome time`);
-  client.user.setActivity("League of Legends", { type: "PLAYING" });
-  //HallOfFames.deleteLesMecsQuiExistentPlus();
-  setTimeout(() => {
-    messageLoose();
-    classementJS.Bestplayer();
-  }
-    , 2000);
-
-    setTimeout(() => {
-      classementJS.Bestplayer();
-    }
-      , 20000);
 
   setInterval(() => {
-    messageLoose();
-  }, 3600000);
-  setTimeout(() => {
-    classementJS.Bestplayer();
-  }
-    , 3600000);
-  setInterval(() => {
-    classementJS.Bestplayer();
-  }, 216000000);
+    MajActivite();
+  }, 2000);
 
-  //43200000
-
-
-
-
-
-
-
-
-
+  /* setTimeout(() => {
+     messageLoose();
+   }
+     , 2000);
+ 
+   setInterval(() => {
+     messageLoose();
+   }, 30000);
+   setInterval(() => {
+     classementJS.Bestplayer();
+   }, 216000000);
+ 
+   //43200000
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ */
 
 });

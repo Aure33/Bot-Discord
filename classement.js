@@ -16,6 +16,8 @@ const keyDiscord = (KeyRequise.keyDiscord);
 const keyDiscordbotsecondaire = (KeyRequise.keyDiscordbotsecondaire);
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
+
+
 // const challenger = "<:challenger:1022113918107258891>";
 // const grandmaster = "<:grandmaster:1022113905927004160>";
 // const master = "<:master:1022113893297946634>";
@@ -37,7 +39,7 @@ module.exports.Bestplayer = Bestplayer;
 var pos
 var posTFT
 
-async function Bestplayer() {
+async function Bestplayer()  {
   try {
     for (var i = 0; i < Object.keys(membres.nom).length; i++) {
       var nomcompte = membres.nom[Object.keys(membres.nom)[i]].nomcompte;
@@ -135,7 +137,7 @@ let classementTAMERE = async () => {
       .setColor(0x51267)
       .addFields({ name: 'Top LOL', value: classement },)
 
-    client.channels.cache.find(channel => channel.name === "classement").send({ embeds: [embedLOL] });
+    client.channels.cache.find(channel => channel.id === "1052959001186406420").send({ embeds: [embedLOL] });
 
   } catch (err) {
     console.log(err);
@@ -211,7 +213,7 @@ let classementTAMERETFT = async () => {
       .setAuthor({ name: 'Classement TFT', iconURL: 'https://play-lh.googleusercontent.com/QcFYcOUpV0OdTKzGlmKcGVPlH1eMOW97cXXkqZtPCuC-0WwCTInMVOan_Fywan89_l8', url: 'https://discord.js.org' })
       .setColor(0x51267)
       .addFields({ name: 'Top TFT', value: classementtft },)
-    client.channels.cache.find(channel => channel.name === "classement").send({ embeds: [embedTFT] });
+    client.channels.cache.find(channel => channel.id === "1052959001186406420").send({ embeds: [embedTFT] });
   } catch (err) {
     console.log(err);
   }
