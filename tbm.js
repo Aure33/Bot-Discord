@@ -12,6 +12,7 @@ const BusFile = JSON.parse(rawDataBus);
 const fetchTBM = async (stopId, lineId) => {
   try {
     const result = await fetch(`${TBM_URL}/${stopId}/${lineId}`);
+    console.log(`${TBM_URL}/${stopId}/${lineId}`);
     return await result.json();
   } catch (e) {
     throw `Erreur de récupération des données TBM (ligne: ${lineId}, arrêt: ${stopId}) : ${e}`;
@@ -40,10 +41,10 @@ const getTBMLineWaitInterval = async (stopName, lineId) => {
     const data = await fetchTBM(stopId, lineId);
     const dests = Object.values(data.destinations);
     let timeBus1 = dests[0][0].departure;
-    let timeBus2 = dests[0][1].arrival;
+    //let timeBus2 = dests[0][1].arrival;
     const date1 = new Date(timeBus1);
-    const date2 = new Date(timeBus2);
-    const result = Math.abs(date1 - date2);
+    //const date2 = new Date(timeBus2);
+    //const result = Math.abs(date1 - date2);
 
     destination_name = dests[0][0].destination_name;
     // console.log(dests[0][0].destination_name);
@@ -161,6 +162,31 @@ const listTram = async (stopId) => {
 
 
 
+const list10 = async () => {
+  // check all stop if the the bus 10 is there write it in newBusStop.json
+  let lineId = "B";
+  arret = [];
+  for(i = 5242; i < 5536; i++){
+    try {
+      if (i % 100 == 0){
+        console.log(i);
+      }
+      await fetchTBM(i, lineId)
+        .then((data) => {
+          const dests = Object.values(data.destinations);
+          if (dests) {
+            arret.push({
+              stop_id: i,
+              destination_name: dests[0][0].destination_name,
+            });
+            console.log(i +" ajouté");
+            fs.writeFileSync('newBusStop.json', JSON.stringify(arret));
+          }
+        });
+    } catch (e) {
+    }
+  } 
+};
 
 
 
@@ -325,7 +351,7 @@ const getBusStops = async () => {
 };
 
 
-
+//list10();
 
 
 // // Call the async function to get the bus stops and write to a file

@@ -21,6 +21,7 @@ const axios = require('axios');
 const { EmbedBuilder } = require('discord.js');
 var classementJS = require('./classement')
 var HallOfFames = require('./HallOfFames')
+var Chess = require('./chess/index.js')
 var tbm = require('./tbm')
 const jsonFile = './ProfileTBM.json';
 
@@ -29,7 +30,14 @@ const fs = require('fs');
 var Lancement = false;
 var LancementTFT = false;
 var membres = require('./profile.json');
+var membresChess = require('./profileChess.json');
+// var membresChess = require('./profileChess.json');
 const challenger = "<:challenger:1022113918107258891>";
+const bestEmoji = "<:best:1102666837856100493>";
+const rapidEmoji = "<:rapid:1102662974134554666>";
+const blitzEmoji = "<:blitz:1102663008443965460>";
+const bulletEmoji = "<:bullet:1102663024411688980>";
+const puzzleEmoji = "<:puzzle:1102662991331213364>";
 
 
 var KeyRequise = require('../key');
@@ -161,19 +169,19 @@ client.on("messageCreate", async (message) => {
       }
       else if (args[1] === "list") {
         tbm.listFavorites(message.author.id)
-        .then((favorites) => {
-          if (favorites.length === 0) {
-            message.channel.send("Aucun favoris");
-            console.log('Sent Aucun favoris');
-            return;
-          }
-          message.channel.send("Liste de vos favoris : " + JSON.stringify(favorites));
-          console.log('Sent Liste de vos favoris: ' + JSON.stringify(favorites));
-        })
-        .catch((error) => {
-          console.error(error);
-          message.channel.send("Erreur");
-        });
+          .then((favorites) => {
+            if (favorites.length === 0) {
+              message.channel.send("Aucun favoris");
+              console.log('Sent Aucun favoris');
+              return;
+            }
+            message.channel.send("Liste de vos favoris : " + JSON.stringify(favorites));
+            console.log('Sent Liste de vos favoris: ' + JSON.stringify(favorites));
+          })
+          .catch((error) => {
+            console.error(error);
+            message.channel.send("Erreur");
+          });
       }
       else {
         const Name = args.slice(1, -1).join(" ");
@@ -254,7 +262,7 @@ client.on("messageCreate", async (message) => {
 
 
 
-  if (message.content.startsWith("!profile")) {
+  if (message.content.startsWith("!profilelol")) {
     try {
       words = message.content.split(" ");
       var names = words[1];
@@ -842,7 +850,7 @@ client.on("messageCreate", async message => {
         },
         fields: [
           {
-            name: "!profile + nomJoueur",
+            name: "!profilelol + nomJoueur",
 
             value: 'Affiche le profil du joueur',
           },
@@ -855,6 +863,11 @@ client.on("messageCreate", async message => {
             name: "!topmastery + nomJoueur",
 
             value: 'Affiche les meilleurs champs du joueur',
+          },
+          {
+            name: "!tbm help",
+
+            value: 'Affiche les commandes pour tbm',
           },
         ],
 
@@ -1173,7 +1186,33 @@ client.on("messageCreate", async message => {
 
 })
 
-
+let TristanLodeur = async () => {
+  try {
+    var SalonResultat = 'general'; 7
+    var idsalon = '1031954505635479653';
+    var nomcompte = 'zenoobhia';
+    var VNom = 'zenoobhia';
+    var ProfileTFT = await axios.get('https://euw1.api.riotgames.com/tft/summoner/v1/summoners/by-name/' + nomcompte + '?api_key=' + riotApiKeyTFT);
+    var matchIDTFT = await axios.get('https://europe.api.riotgames.com/tft/match/v1/matches/by-puuid/' + ProfileTFT.data.puuid + '/ids?start=0&count=20&api_key=' + riotApiKeyTFT);
+    var numDripStand;
+    for (var i = 0; i < Object.keys(membres.nom).length; i++) {
+      if (Object.keys(membres.nom)[i] === nomcompte) {
+        numDripStand = i;
+        break;
+      }
+    }
+    if (membres.nom[Object.keys(membres.nom)[numDripStand]].dernierMatchTFT !== matchIDTFT.data[0]) {
+      membres.nom[Object.keys(membres.nom)[numDripStand]].dernierMatchTFT = matchIDTFT.data[0];
+      if (membres.nom[Object.keys(membres.nom)[numDripStand]].dernierMatchTFT !== undefined && LancementTFT) {
+        client.channels.cache.find(channel => channel.id === idsalon).send("@everyone BAHAHAH <@224250814581964800> le gros puant a lancé une game alors qu'il est a Copenhague ");
+      }
+    }
+    LancementTFT = true;
+  }
+  catch (err) {
+    console.log(err);
+  }
+}
 
 //create a function 
 let messageLoose = async () => {
@@ -1305,13 +1344,145 @@ let messageLoose = async () => {
 }
 
 
-//SAVE DERNIERE GAME
 
+async function newRecordChess() {
+  var idsalon = "1083056648052027523"
+  try {
+    //console.log("--------------MEMBRECHESS ----------------- ",membresChess);
+    for (var i = 0; i < Object.keys(membresChess.nom).length; i++) {
+      user = membresChess.nom[Object.keys(membresChess.nom)[i]];
+      msg = await Chess.BestGame(user);
+      if (msg[0] !== undefined) {
+        client.channels.cache.find(channel => channel.id === idsalon).send(msg[0]);
+        console.log("envoie");
+      } if (msg[1] !== undefined) {
+        client.channels.cache.find(channel => channel.id === idsalon).send(msg[1]);
+        console.log("envoie");
+      } if (msg[2] !== undefined) {
+        client.channels.cache.find(channel => channel.id === idsalon).send(msg[2]);
+        console.log("envoie");
+      }
+    }
+
+  } catch (err) {
+  }
+
+}
 
 
 
 client.on("messageCreate", async message => {
-  if (message.content.startsWith("!add")) {
+
+  // CHESS 
+
+  if (message.content.startsWith("!profilechess")) {
+    try {
+      words = message.content.split(" ");
+      var names = words[1];
+
+      //if words is < 2, then the user didn't specify a name
+      if (words.length > 2) {
+        for (var i = 2; i < words.length; i++) {
+          names += words[i];
+        }
+      } else if (words.length === 1) {
+        message.channel.send({ content: "Tu veux que je regarde le profile de qui avec ca enculé" });
+        return;
+      }
+      trueNames = names
+      names = names.toLowerCase();
+      try {
+        var user = await Chess.getProfileChess(names);
+      } catch (err) {
+        message.channel.send({ content: "t qui enculé" });
+        return;
+      }
+      try{
+        var exampleEmbed = new EmbedBuilder()
+          .setColor(0x0099FF)
+          .setTitle(trueNames + " " + "[" + user.pays + "]")
+          .setURL(user.url)
+          .setAuthor({ name: 'Chess.com', iconURL: 'https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/SamCopeland/phpmeXx6V.png', url: 'https://www.chess.com/' })
+          .setThumbnail(user.avatar)
+          .addFields(
+            { name: 'Elo Rapid' + '\xa0\xa0\xa0\xa0\xa0' + 'Elo Blitz', value: ' ' ,inline: false},
+            { name: ' ', value: rapidEmoji + (user.EloRapid).toString() + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + blitzEmoji + (user.EloBlitz).toString() ,inline: false},
+            { name: ' ', value: bestEmoji + (user.recordRapid).toString() + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + bestEmoji + (user.recordBlitz).toString(), inline: false },
+
+            { name: 'Elo Bullet' + '\xa0\xa0\xa0\xa0\xa0' + 'Elo Puzzle', value: ' ',inline: false },
+            { name: ' ', value: bulletEmoji + (user.EloBullet).toString() + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + puzzleEmoji + (user.EloPuzzle).toString(),inline: false },
+            { name: ' ', value: bestEmoji + (user.recordBullet).toString() + '\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0' + bestEmoji + (user.recordPuzzle).toString(), inline: false },
+
+          )
+          .addFields(
+            { name: 'LastGame' + '\xa0\xa0\xa0\xa0\xa0' + user.urlgameLastGame, value: ' ' },
+          )
+          .setTimestamp()
+          .setFooter({ text: 'Request by ' + message.author.username, iconURL: message.author.avatarURL() });
+      } catch (err) {
+        message.channel.send({ content: "t qui enculé" });
+        return;
+      }
+      message.channel.send({ embeds: [exampleEmbed] });
+    } catch (err) {
+      console.log("error dehors embed",err);
+      return;
+    }
+  }
+
+
+
+  if (message.content.startsWith("!addchess")) {
+    try {
+      words = message.content.split(" ");
+      var nom = words[1];
+
+      //if words is < 2, then the user didn't specify a name
+      if (words.length > 2) {
+        for (var i = 2; i < words.length; i++) {
+          nom += words[i];
+        }
+      } else if (words.length === 1) {
+        message.channel.send({ content: "Tu veux que je add qui avec ca enculé" });
+        return;
+      }
+      nom = nom.toLowerCase();
+      if (await Chess.addPlayerChess(nom, message.author.id)) {
+        message.channel.send({ content: "C bon chef" });
+      } else {
+        message.channel.send({ content: "T'es déjà dedans'" });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  if (message.content.startsWith("!removechess")) {
+    try {
+      words = message.content.split(" ");
+      var nom = words[1];
+
+      //if words is < 2, then the user didn't specify a name
+      if (words.length > 2) {
+        for (var i = 2; i < words.length; i++) {
+          nom += words[i];
+        }
+      } else if (words.length === 1) {
+        message.channel.send({ content: "Tu veux que je remove qui avec ca enculé" });
+        return;
+      }
+      nom = nom.toLowerCase();
+      if (await Chess.removePlayerChess(nom, message.author.id)) {
+        message.channel.send({ content: "Tu as bien été enlevé" });
+      } else {
+        message.channel.send({ content: "Ce compte n'existe pas / tu n'es pas le proprio du compte" });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  if (message.content.startsWith("!addlol")) {
     try {
       words = message.content.split(" ");
       var nom = words[1];
@@ -1378,6 +1549,7 @@ client.on("messageCreate", async message => {
         });
         message.channel.send({ content: "Joueur ajouté" });
 
+
       } else {
         message.channel.send("Joueur déjà ajouté on ta volé ton compte mskn");
       }
@@ -1393,7 +1565,7 @@ client.on("messageCreate", async message => {
 
 
 
-  if (message.content.startsWith("!remove")) {
+  if (message.content.startsWith("!removelol")) {
     try {
       words = message.content.split(" ");
 
@@ -1722,10 +1894,11 @@ client.login(keyDiscord);
 //client.login(keyDiscordbotsecondaire);
 client.on('ready', () => {
   console.log(`It's welcome time`);
-
   setInterval(() => {
     MajActivite();
-  }, 2000);
+    newRecordChess();
+    TristanLodeur();
+  }, 20000);
 
   /* setTimeout(() => {
      messageLoose();
