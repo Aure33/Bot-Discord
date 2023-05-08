@@ -1,1 +1,28 @@
-{"nom":{"by_yolker":{"avatar":"","nomChess":"by_yolker","nomDiscord":"274236782189608974","EloRapid":1292,"EloBlitz":1101,"EloBullet":1000,"recordRapid":1384,"recordBlitz":1278,"recordBullet":1132}}}
+{
+  "nom": {
+    "by_yolker": {
+      "nomChess": "by_yolker",
+      "nomDiscord": "274236782189608974",
+      "EloRapid": 1386,
+      "EloBlitz": 1101,
+      "EloBullet": 1000,
+      "EloPuzzle": 2272,
+      "recordRapid": 1386,
+      "recordBlitz": 1278,
+      "recordBullet": 1132,
+      "recordPuzzle": 2365
+    },
+    "carambasenor": {
+      "nomChess": "carambasenor",
+      "nomDiscord": "852667747329638470",
+      "EloRapid": 613,
+      "EloBlitz": 344,
+      "EloBullet": 0,
+      "EloPuzzle": 1021,
+      "recordRapid": 643,
+      "recordBlitz": 0,
+      "recordBullet": 0,
+      "recordPuzzle": 1021
+    }
+  }
+}

@@ -3,7 +3,9 @@ const TBM_URL = "https://ws.infotbm.com/ws/1.0/get-realtime-pass";
 
 const fs = require('fs');
 const jsonFile = './ProfileTBM.json';
-const rawData = fs.readFileSync('stopId.json', 'utf8');
+
+const  rawData = fs.readFileSync('stopId.json', 'utf8');
+// console.log(rawData);
 const dataFile = JSON.parse(rawData);
 
 const rawDataBus = fs.readFileSync('busStops.json', 'utf8');

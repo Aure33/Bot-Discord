@@ -1,5 +1,23 @@
+const { Client, GatewayIntentBits, MessageEmbed } = require('discord.js');
+const client = new Client({
+    intents: [
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildBans,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildInvites,
+        GatewayIntentBits.GuildWebhooks,
+        GatewayIntentBits.GuildIntegrations,
+    ]
+});
 const axios = require('axios');
-const { profile } = require('console');
+
 const fs = require('fs');
 var membres = require('../profileChess.json');
 
@@ -22,7 +40,7 @@ async function getProfileChess(username) {
         recordPuzzle = "0";
         for (i = 0; i < trueStats.data.stats.length; i++) {
             if (trueStats.data.stats[i].key === "tactics") {
-                EloPuzzle = trueStats.data.stats[i].stats.rating$
+                EloPuzzle = trueStats.data.stats[i].stats.rating
                 recordPuzzle = trueStats.data.stats[i].stats.highest_rating
                 break;
             }
@@ -30,7 +48,6 @@ async function getProfileChess(username) {
         avatar = popup.data.avatarUrl ?? " ";
         url = profil.data.url ?? " ";
         pays = country.data.code ?? "Sans papier";
-        console.log(pays);
         EloRapid = stats.data.chess_rapid?.last?.rating ?? "0";
         EloBlitz = stats.data.chess_blitz?.last?.rating ?? "0";
         EloBullet = stats.data.chess_bullet?.last?.rating ?? "0";
@@ -38,7 +55,6 @@ async function getProfileChess(username) {
         recordBlitz = stats.data.chess_blitz?.best?.rating ?? "0";
         recordBullet = stats.data.chess_bullet?.best?.rating ?? "0";
         urlgameLastGame = lastGame.url ?? " ";
-
         const profile = {
             avatar: avatar,
             url: url,
@@ -58,8 +74,6 @@ async function getProfileChess(username) {
     } catch (error) {
         console.log(error);
     }
-
-    //console.log(stats.data.chess_rapid);
 }
 
 
@@ -76,7 +90,7 @@ async function addPlayerChess(username, idDiscord) {
         recordPuzzle = 0;
         for (i = 0; i < trueStats.data.stats.length; i++) {
             if (trueStats.data.stats[i].key === "tactics") {
-                EloPuzzle = trueStats.data.stats[i].stats.rating$
+                EloPuzzle = trueStats.data.stats[i].stats.rating
                 recordPuzzle = trueStats.data.stats[i].stats.highest_rating
                 break;
             }
@@ -99,7 +113,7 @@ async function addPlayerChess(username, idDiscord) {
             recordBullet: recordBullet,
             recordPuzzle: recordPuzzle,
         }
-        fs.writeFileSync("./profileChess.json", JSON.stringify(membres, null, 2));
+        fs.writeFileSync("../Bot-Discord/profileChess.json", JSON.stringify(membres, null, 2));
         console.log("Le joueur a été ajouté");
         return true;
     } catch (error) {
@@ -114,7 +128,7 @@ async function removePlayerChess(username, idDiscord) {
             console.log(membres.nom[Object.keys(membres.nom)[i]].nomDiscord);
             if (membres.nom[Object.keys(membres.nom)[i]].nomChess === username && membres.nom[Object.keys(membres.nom)[i]].nomDiscord === idDiscord) {
                 delete membres.nom[Object.keys(membres.nom)[i]];
-                fs.writeFileSync("./profileChess.json", JSON.stringify(membres, null, 2));
+                fs.writeFileSync("../Bot-Discord/profileChess.json", JSON.stringify(membres, null, 2));
                 console.log("Bisous");
                 return true;
             }
@@ -130,23 +144,29 @@ async function BestGame(user) {
     var msg1;
     var msg2;
     var msg3;
+    let attachment;
     try {
         username = user.nomChess;
         var stats = await axios.get(`https://api.chess.com/pub/player/${username}/stats`);
         try {
             user.EloRapid = stats.data.chess_rapid.last.rating;
             if (stats.data.chess_rapid.best.rating > user.recordRapid) {
-                console.log("rapid");
-                msg1 = "Nouvelle Pasterclass en Rapid pour <@" + user.nomDiscord +
-                    "> qui bats son record de " + user.recordRapid + " à " + stats.data.chess_rapid.best.rating + " " + stats.data.chess_rapid.best.game;
-                user.recordRapid = stats.data.chess_rapid.best.rating;
+                if (user.nomDiscord === "274236782189608974") {
+                    msg1 = "IL EST DE RETOUR <@" + user.nomDiscord +
+                        "> dépasse enfin les " + user.recordRapid + " pour passer à " + stats.data.chess_rapid.best.rating + " apres 2 ans d'attentes ";
+                    attachment = "./img/il-revient.png"
+                    user.recordRapid = stats.data.chess_rapid.best.rating;
+                } else {
+                    msg1 = "Nouvelle Pasterclass en Rapid pour <@" + user.nomDiscord +
+                        "> qui bats son record de " + user.recordRapid + " à " + stats.data.chess_rapid.best.rating + " " + stats.data.chess_rapid.best.game;
+                    user.recordRapid = stats.data.chess_rapid.best.rating;
+                }
             }
         } catch (error) {
         }
         try {
             user.EloBlitz = stats.data.chess_blitz.last.rating;
             if (stats.data.chess_blitz.best.rating > user.recordBlitz) {
-                console.log("blitz");
                 msg2 = "Nouvelle Pasterclass en Blitz pour <@" + user.nomDiscord +
                     "> qui bats son record de " + user.recordBlitz + " à " + stats.data.chess_blitz.best.rating + " " + stats.data.chess_blitz.best.game;
                 user.recordBlitz = stats.data.chess_blitz.best.rating;
@@ -156,23 +176,37 @@ async function BestGame(user) {
         try {
             user.EloBullet = stats.data.chess_bullet.last.rating;
             if (stats.data.chess_bullet.best.rating > user.recordBullet) {
-                console.log("bullet");
                 msg3 = "Nouvelle Pasterclass en Bullet pour <@" + user.nomDiscord +
                     "> qui bats son record de " + user.recordBullet + " à " + stats.data.chess_bullet.best.rating + " " + stats.data.chess_bullet.best.game;
                 user.recordBullet = stats.data.chess_bullet.best.rating;
             }
         } catch (error) {
         }
+        try {
+            var trueStats = await axios.get(`https://api.chess.com/pub/player/${username}/stats`);
+            for (i = 0; i < trueStats.data.stats.length; i++) {
+                if (trueStats.data.stats[i].key === "tactics") {
+                    user.EloPuzzle = trueStats.data.stats[i].stats.rating
+                    user.recordPuzzle = trueStats.data.stats[i].stats.highest_rating
+                    break;
+                }
+            }
+        } catch (error) {
+        }
         // ----------------------------    SOLUTION POUR LE HALL OF FAMES   ---------------------------------
-        // membres.nom[username] = user;
+        membres.nom[username] = user;
         // ----------------------------    SOLUTION POUR LE HALL OF FAMES   ---------------------------------
-        fs.writeFileSync("./profileChess.json", JSON.stringify(membres), (err) => {
+        fs.writeFileSync("./profileChess.json", JSON.stringify(membres, null, 2), function (err) {
             if (err) console.error(err)
         });
-        return [msg1, msg2, msg3];
+        return [msg1, msg2, msg3, attachment];
 
     } catch (error) {
         console.log(error);
+    }
+
+    function getNbJoueur() {
+        return Object.keys(membres.nom).length;
     }
 }
 
